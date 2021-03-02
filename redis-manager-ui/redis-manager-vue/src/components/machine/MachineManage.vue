@@ -86,6 +86,9 @@
         <el-form-item label="Password" prop="password">
           <el-input v-model="machines.password"></el-input>
         </el-form-item>
+        <el-form-item label="Private License" prop="license">
+          <el-input v-model="machines.license"></el-input>
+        </el-form-item>
         <el-form-item label="SSH Port" prop="sshPort">
           <el-input v-model.number="machines.sshPort"></el-input>
         </el-form-item>
@@ -149,80 +152,80 @@
   </div>
 </template>
 <script>
-import { store } from "@/vuex/store.js";
-import API from "@/api/api.js";
-import { formatTime } from "@/utils/time.js";
-import { isEmpty, validateIp } from "@/utils/validate.js";
-import message from "@/utils/message.js";
+import { store } from '@/vuex/store.js'
+import API from '@/api/api.js'
+import { formatTime } from '@/utils/time.js'
+import { isEmpty, validateIp } from '@/utils/validate.js'
+import message from '@/utils/message.js'
 export default {
-  data() {
+  data () {
     var validateMahineGroupName = (rule, value, callback) => {
       if (isEmpty(value) || isEmpty(value.trim())) {
-        return callback(new Error("Please select or enter machine group name"));
+        return callback(new Error('Please select or enter machine group name'))
       }
-      callback();
-    };
+      callback()
+    }
     var validateUserName = (rule, value, callback) => {
       if (isEmpty(value) || isEmpty(value.trim())) {
-        return callback(new Error("Please enter machine user name"));
+        return callback(new Error('Please enter machine user name'))
       }
-      callback();
-    };
+      callback()
+    }
     var validatePassword = (rule, value, callback) => {
       if (isEmpty(value) || isEmpty(value.trim())) {
-        return callback(new Error("Please enter machine password"));
+        return callback(new Error('Please enter machine password'))
       }
-      callback();
-    };
+      callback()
+    }
     var validateToken = (rule, value, callback) => {
       if (isEmpty(value) || isEmpty(value.trim())) {
-        return callback(new Error("Please  enter machine token"));
+        return callback(new Error('Please  enter machine token'))
       }
-      callback();
-    };
+      callback()
+    }
     var validateHost = (rule, value, callback) => {
       if (isEmpty(value) || isEmpty(value.trim())) {
-        return callback(new Error("Please enter machine ip"));
+        return callback(new Error('Please enter machine ip'))
       } else if (!validateIp(value)) {
-        return callback(new Error("Incorrect ip format"));
+        return callback(new Error('Incorrect ip format'))
       }
-      callback();
-    };
+      callback()
+    }
     var validateHostConnection = (rule, value, callback) => {
-      let userName = this.machines.userName;
-      let password = this.machines.password;
-      let sshPort = this.machines.sshPort;
+      let userName = this.machines.userName
+      let password = this.machines.password
+      let sshPort = this.machines.sshPort
       if (
         isEmpty(userName) ||
         isEmpty(userName.trim()) ||
         isEmpty(password) ||
         isEmpty(password.trim())
       ) {
-        return callback(new Error("Please enter user name and passwor first"));
+        return callback(new Error('Please enter user name and passwor first'))
       }
-      let url = "/machine/validateConnection";
+      let url = '/machine/validateConnection'
       let machine = {
         userName: userName,
         password: password,
         host: value,
         sshPort: sshPort
-      };
+      }
       API.post(
         url,
         machine,
         response => {
-          let result = response.data;
-          if (result.code == 0) {
-            callback();
+          let result = response.data
+          if (result.code === 0) {
+            callback()
           } else {
-            return callback(new Error(result.message));
+            return callback(new Error(result.message))
           }
         },
         err => {
-          return callback(new Error("Network error"));
+          return callback(new Error('Network error'))
         }
-      );
-    };
+      )
+    }
     return {
       machineList: [],
       machineGroupNameList: [],
@@ -232,107 +235,108 @@ export default {
       deleteBatchVisible: false,
       batchDelete: false,
       machines: {
-        hostList: [{ value: "" }],
-        sshPort: 22
+        hostList: [{ value: '' }],
+        sshPort: 22,
+        license: ''
       },
       rules: {
         machineGroupName: [
           {
             required: true,
             validator: validateMahineGroupName,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         userName: [
           {
             required: true,
             validator: validateUserName,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         password: [
           {
             required: true,
             validator: validatePassword,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         host: [
           {
             required: true,
             validator: validateHost,
-            trigger: "blur"
+            trigger: 'blur'
           },
           {
             required: true,
             validator: validateHostConnection,
-            trigger: "blur"
+            trigger: 'blur'
           }
         ]
       },
-      search: "",
+      search: '',
       selectedMachineList: [],
       saveMachineLoading: false
-    };
+    }
   },
   methods: {
-    getMachineList(groupId) {
+    getMachineList (groupId) {
       if (isEmpty(groupId)) {
-        return;
+        return
       }
-      let url = "/machine/getMachineList/" + groupId;
+      let url = '/machine/getMachineList/' + groupId
       API.get(
         url,
         null,
         response => {
-          let result = response.data;
-          if (result.code == 0) {
-            let machineList = result.data;
+          let result = response.data
+          if (result.code === 0) {
+            let machineList = result.data
             machineList.forEach(machine => {
-              machine.time = formatTime(machine.updateTime);
-            });
-            this.machineList = machineList;
+              machine.time = formatTime(machine.updateTime)
+            })
+            this.machineList = machineList
           } else {
-           message.error("Get machine list failed");
+            message.error('Get machine list failed')
           }
         },
         err => {
-          message.error(err);
+          message.error(err)
         }
-      );
+      )
     },
-    getMachineGroupNameList(groupId) {
-      let url = "/machine/getMachineGroupNameList/" + groupId;
+    getMachineGroupNameList (groupId) {
+      let url = '/machine/getMachineGroupNameList/' + groupId
       API.get(
         url,
         null,
         response => {
-          let result = response.data;
-          if (result.code == 0) {
-            this.machineGroupNameList = result.data;
+          let result = response.data
+          if (result.code === 0) {
+            this.machineGroupNameList = result.data
           } else {
-            message.error("Get machine group name list failed");
+            message.error('Get machine group name list failed')
           }
         },
         err => {
-          message.error(err);
+          message.error(err)
         }
-      );
+      )
     },
-    buildMachineList(machines) {
-      let machineList = [];
+    buildMachineList (machines) {
+      let machineList = []
       if (this.isUpdate) {
-        machineList.push(machines);
-        return machineList;
+        machineList.push(machines)
+        return machineList
       }
-      let machineGroupName = this.machines.machineGroupName;
-      let userName = this.machines.userName;
-      let password = this.machines.password;
-      let token = this.machines.token;
-      let hostList = this.machines.hostList;
-      let machineInfo = this.machines.machineInfo;
-      let sshPort = this.machines.sshPort;
-      sshPort = isEmpty(sshPort) ? 22 : sshPort;
+      let machineGroupName = this.machines.machineGroupName
+      let userName = this.machines.userName
+      let password = this.machines.password
+      let token = this.machines.token
+      let hostList = this.machines.hostList
+      let machineInfo = this.machines.machineInfo
+      let sshPort = this.machines.sshPort
+      sshPort = isEmpty(sshPort) ? 22 : sshPort
       hostList.forEach(host => {
         machineList.push({
           groupId: this.currentGroupId,
@@ -343,141 +347,141 @@ export default {
           host: host.value,
           sshPort: sshPort,
           machineInfo: machineInfo
-        });
-      });
-      return machineList;
+        })
+      })
+      return machineList
     },
-    saveMachines(machines) {
+    saveMachines (machines) {
       this.$refs[machines].validate(valid => {
         if (valid) {
-          let machineList = this.buildMachineList(this.machines);
-          let url = "";
+          let machineList = this.buildMachineList(this.machines)
+          let url = ''
           if (this.isUpdate) {
-            url = "/machine/updateMachine";
+            url = '/machine/updateMachine'
           } else {
-            url = "/machine/addMachineList";
+            url = '/machine/addMachineList'
           }
-          this.saveMachineLoading = true;
+          this.saveMachineLoading = true
           API.post(
             url,
             machineList,
             response => {
-              let result = response.data;
-              if (result.code == 0) {
-                this.editMachineVisible = false;
-                this.getMachineGroupNameList(this.currentGroupId);
-                this.getMachineList(this.currentGroupId);
+              let result = response.data
+              if (result.code === 0) {
+                this.editMachineVisible = false
+                this.getMachineGroupNameList(this.currentGroupId)
+                this.getMachineList(this.currentGroupId)
               } else {
-                message.error("Save machines failed");
+                message.error('Save machines failed')
               }
-              this.$refs[machines].resetFields();
-              this.saveMachineLoading = false;
+              this.$refs[machines].resetFields()
+              this.saveMachineLoading = false
             },
             err => {
-              this.saveMachineLoading = true;
-              message.error(err);
+              this.saveMachineLoading = true
+              message.error(err)
             }
-          );
+          )
         }
-      });
+      })
     },
-    editMachine(index, row) {
-      this.machines = row;
-      this.editMachineVisible = true;
-      this.isUpdate = true;
+    editMachine (index, row) {
+      this.machines = row
+      this.editMachineVisible = true
+      this.isUpdate = true
     },
-    handleDelete(index, row) {
-      this.machines = row;
-      this.deleteVisible = true;
-      this.batchDelete = false;
+    handleDelete (index, row) {
+      this.machines = row
+      this.deleteVisible = true
+      this.batchDelete = false
     },
-    handleDeleteBatch() {
-      this.batchDelete = true;
-      if (this.selectedMachineList.length == 0) {
-        message.warning("Please select machine");
+    handleDeleteBatch () {
+      this.batchDelete = true
+      if (this.selectedMachineList.length === 0) {
+        message.warning('Please select machine')
       } else {
-        this.deleteBatchVisible = true;
+        this.deleteBatchVisible = true
       }
     },
-    deleteMachine() {
-      let url = "";
-      let data;
+    deleteMachine () {
+      let url = ''
+      let data
       if (this.batchDelete) {
-        url = "/machine/deleteMachineBatch";
-        data = this.selectedMachineList;
+        url = '/machine/deleteMachineBatch'
+        data = this.selectedMachineList
         data.forEach(machine => {
-          machine.updateTime = new Date();
-        });
+          machine.updateTime = new Date()
+        })
       } else {
-        url = "/machine/deleteMachine";
-        data = this.machines;
-        data.updateTime = new Date();
+        url = '/machine/deleteMachine'
+        data = this.machines
+        data.updateTime = new Date()
       }
       API.post(
         url,
         data,
         response => {
-          let result = response.data;
-          if (result.code == 0) {
-            this.deleteVisible = false;
-            this.deleteBatchVisible = false;
-            this.getMachineGroupNameList(this.currentGroupId);
-            this.getMachineList(this.currentGroupId);
+          let result = response.data
+          if (result.code === 0) {
+            this.deleteVisible = false
+            this.deleteBatchVisible = false
+            this.getMachineGroupNameList(this.currentGroupId)
+            this.getMachineList(this.currentGroupId)
             this.machines = {
-              hostList: [{ value: "" }]
-            };
-            this.selectedMachineList = [];
+              hostList: [{ value: '' }]
+            }
+            this.selectedMachineList = []
           } else {
-            message.error("Delete machine failed");
+            message.error('Delete machine failed')
           }
         },
         err => {
-          message.error(err);
+          message.error(err)
         }
-      );
+      )
     },
-    removeHost(item) {
-      if (this.machines.hostList.length == 1) {
-        return;
+    removeHost (item) {
+      if (this.machines.hostList.length === 1) {
+        return
       }
-      var index = this.machines.hostList.indexOf(item);
+      var index = this.machines.hostList.indexOf(item)
       if (index !== -1) {
-        this.machines.hostList.splice(index, 1);
+        this.machines.hostList.splice(index, 1)
       }
     },
-    addHost() {
+    addHost () {
       if (this.machines.hostList.length >= 20) {
-        return;
+        return
       }
       this.machines.hostList.push({
-        value: "",
+        value: '',
         key: Date.now()
-      });
+      })
     },
-    handleSelectionChange(val) {
-      this.selectedMachineList = val;
+    handleSelectionChange (val) {
+      this.selectedMachineList = val
     }
   },
   computed: {
-    currentGroupId() {
-      return store.getters.getCurrentGroup.groupId;
+    currentGroupId () {
+      return store.getters.getCurrentGroup.groupId
     }
   },
   watch: {
-    currentGroupId(groupId) {
-      this.getMachineList(groupId);
+    currentGroupId (groupId) {
+      this.getMachineList(groupId)
       this.$router.push({
-        name: "machine-manage",
+        name: 'machine-manage',
         params: { groupId: groupId }
-      });
+      })
     }
   },
-  mounted() {
-    let groupId = this.currentGroupId;
-    this.getMachineList(groupId);
-    this.getMachineGroupNameList(groupId);
+  mounted () {
+    let groupId = this.currentGroupId
+    this.getMachineList(groupId)
+    this.getMachineGroupNameList(groupId)
   }
-};
+}
 </script>
 <style scoped>
 .body-wrapper {
