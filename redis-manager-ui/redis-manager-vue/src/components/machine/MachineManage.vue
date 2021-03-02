@@ -86,6 +86,9 @@
         <el-form-item label="Password" prop="password">
           <el-input v-model="machines.password"></el-input>
         </el-form-item>
+        <el-form-item label="Private License" prop="license">
+          <el-input v-model="machines.license"></el-input>
+        </el-form-item>
         <el-form-item label="SSH Port" prop="sshPort">
           <el-input v-model.number="machines.sshPort"></el-input>
         </el-form-item>
@@ -233,7 +236,8 @@ export default {
       batchDelete: false,
       machines: {
         hostList: [{ value: '' }],
-        sshPort: 22
+        sshPort: 22,
+        license: ''
       },
       rules: {
         machineGroupName: [
